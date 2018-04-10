@@ -12,7 +12,6 @@ public class StockMarketClient {
 		      
 		      System.out.println("Price is "+price); 
 		      
-		      System.out.println(market.getAvailibleFiles());
 		      } 
 		       catch (Exception e) {
 		       	System.out.println(e.getMessage());

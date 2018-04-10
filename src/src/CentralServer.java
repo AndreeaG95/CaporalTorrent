@@ -2,9 +2,10 @@ package src;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 
 public class CentralServer extends UnicastRemoteObject implements ServerInterface{
 
@@ -30,43 +31,40 @@ public class CentralServer extends UnicastRemoteObject implements ServerInterfac
 	}
 
 	@Override
-	public boolean sendFile(ClientInterface c, String file) throws RemoteException {
-		try{		 
-			 FileInputStream in = new FileInputStream("C:\\Users\\andreeagb\\Desktop\\Facultate\\AnulIV\\DP\\CaporalTorrent\\maria.txt");
-			 
-			 byte [] mydata=new byte[1024*1024];						
-			 int mylen=in.read(mydata);
-			 while(mylen>0){
-				 c.sendData(file, mydata, mylen);	 
-				 mylen = in.read(mydata);				 
-			 }
-			 
-			 in.close();
-		 }catch(Exception e){
-			 return false;
-			 
-		 }
-		return true;
-	}
-
-	@Override
-	public ArrayList<String> getAvailibleFiles() throws RemoteException {
-		ArrayList<String> obj = new ArrayList<String>();
+	public byte[] downloadFile(String file) throws RemoteException {
+		byte [] mydata;	
 		
-		File folder = new File("C:\\Users\\andreeagb\\Desktop\\Facultate\\AnulIV\\DP\\CaporalTorrent\\files");
-		File[] listOfFiles = folder.listFiles();
-
-		System.out.println("Listing files...");
+		File serverpathfile = new File(file);			
+		mydata = new byte[(int) serverpathfile.length()];
+		FileInputStream in;
+		try {
+			in = new FileInputStream(serverpathfile);
+			try {
+				in.read(mydata, 0, mydata.length);
+			} catch (IOException e) {
 		
-		for (File file : listOfFiles) {
-			System.out.println(file.getName());
-		    if (file.isFile() || file.isDirectory()) {
-		        obj.add(file.getName());
-		    }
-		}
+				e.printStackTrace();
+			}						
+			try {
+				in.close();
+			} catch (IOException e) {
+			
+				e.printStackTrace();
+			}
+			
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		}		
 		
-		return obj;
+		return mydata;
 	}
 	
+
+	public String[] listFiles(String serverpath) throws RemoteException {
+		File serverpathdir = new File(serverpath);
+		return serverpathdir.list();
+		
+	}
 
 }
