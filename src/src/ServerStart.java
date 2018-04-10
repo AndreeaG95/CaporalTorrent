@@ -4,14 +4,18 @@ import java.rmi.Naming;
 
 public class ServerStart {
 	public static void main(String[] args) {
+		
+		if(args.length != 1){
+			System.out.println("Incorrect usage: ServerStart <file_directory>");
+			System.exit(0);
+		}
+		
 		try{
+			CentralServer cs = new CentralServer();
+			cs.setFileLocation(args[0]);
 			
-			//java.rmi.registry.LocateRegistry.createRegistry(1099);
+			Naming.rebind("rmi://localhost/CentralServer", cs);
 			
-			ServerClass fs=new ServerClass();
-			
-			//fs.setFile("ana.txt");			
-			Naming.rebind("rmi://localhost/NASDAQ", fs);
 			System.out.println("File Server is Ready");
 			
 		}catch(Exception e){
