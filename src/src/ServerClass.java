@@ -9,10 +9,7 @@ public class ServerClass extends UnicastRemoteObject implements ServerInterface{
 
 	private String file="";
 	
-	protected ServerClass() throws RemoteException {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public ServerClass() throws RemoteException {}
 
 	public void setFile(String f){
 		file=f;
@@ -36,6 +33,13 @@ public class ServerClass extends UnicastRemoteObject implements ServerInterface{
 		 }
 		
 		return true;
+	}
+
+	@Override
+	public float get_price(String Company) {
+		float price=12345;
+        System.out.println("get_price method executing");
+        return price;
 	}
 	
 
