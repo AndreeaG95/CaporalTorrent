@@ -1,4 +1,4 @@
-package src;
+package server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +10,7 @@ import java.rmi.server.UnicastRemoteObject;
 public class CentralServer extends UnicastRemoteObject implements ServerInterface{
 
 	/**
-	 * 
+	 * do we actually need this parameter?
 	 */
 	private static final long serialVersionUID = 1L;
 	

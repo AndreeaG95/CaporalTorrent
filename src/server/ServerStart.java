@@ -1,6 +1,8 @@
-package src;
+package server;
 
 import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class ServerStart {
 	public static void main(String[] args) {
@@ -13,6 +15,7 @@ public class ServerStart {
 		try{
 			CentralServer cs = new CentralServer();
 			cs.setFileLocation(args[0]);
+			Registry registry = LocateRegistry.createRegistry(0);
 			
 			Naming.rebind("rmi://localhost/CentralServer", cs);
 			

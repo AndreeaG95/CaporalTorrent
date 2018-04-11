@@ -1,10 +1,12 @@
-package src;
+package client;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+
+import server.ServerInterface;
 
 public class FileClient {
 
@@ -32,6 +34,8 @@ public class FileClient {
 				File clientpathfile = new File(clientpath);
 				FileOutputStream out = new FileOutputStream(clientpathfile);				
 	    		
+				System.out.println("Finished downloading !");
+				
 				out.write(mydata);
 				out.flush();
 		    	out.close();
