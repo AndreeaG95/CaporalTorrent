@@ -31,7 +31,10 @@ public class CentralServer extends UnicastRemoteObject implements ServerInterfac
 	}
 
 	@Override
+	// This will actually redirect the download to the local server that is closer to the client.
 	public byte[] downloadFile(String file) throws RemoteException {
+		
+		
 		byte [] mydata;	
 		
 		File serverpathfile = new File(file);			

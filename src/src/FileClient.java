@@ -16,7 +16,7 @@ public class FileClient {
 		String clientpath;
 		String serverpath;
 		
-		
+		//TODO(mariusica): Check if we actually have arguments is each case.
 		try{
 			ServerInterface server = (ServerInterface) Naming.lookup("rmi://localhost/CentralServer");
 			
@@ -40,6 +40,7 @@ public class FileClient {
 			//to list all the files in a directory
 			if(dir.equals(args[0]))
 			{
+				// TODO(mariusica): add as default "./" for serverpath.
 				serverpath = args[1];
 				String[] filelist = server.listFiles(serverpath);
 				for (String i: filelist)
