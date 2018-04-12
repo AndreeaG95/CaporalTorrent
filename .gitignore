@@ -8,6 +8,8 @@
 *.so
 *.pdf
 *.txt
+.classpath
+.project
 
 # Packages #
 ############
