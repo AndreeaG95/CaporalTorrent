@@ -1,28 +1,46 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Enumeration;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import common.Constants;
+import common.FindLocationTask;
+import common.Location;
 
 public class TestLocation {
-	public static void main(String[] args) {
-//		try {
-//			File dbFile = new File("D:\\proiecte\\NewEcWorkspace\\CaporalTorrent\\GeoLite.mmdb");
-//			DatabaseReader reader = new DatabaseReader.Builder(dbFile).build();
-//			InetAddress ipAddress = InetAddress.getByName("192.168.0.1");
-//			
-//			CityResponse cityResponse = reader.city(ipAddress);
-//			Location location = cityResponse.getLocation();
-//			
-//			//FIXME the current ip address is not found in the DB
-//			System.out.println(location.getLatitude());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (GeoIp2Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public static void main(String[] args) throws IOException {
+		ExecutorService es = Executors.newSingleThreadExecutor();
+		FindLocationTask task = new FindLocationTask();
+		Future<Location> future = es.submit(task);
+		Location location = null;
+
+		try {
+			location = future.get();
+		} catch (InterruptedException e) {
+			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
+			e.printStackTrace();
+		}
+
+		System.out.println("Location: " + location);
+
+		es.shutdown();
 	}
 }

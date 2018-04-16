@@ -3,6 +3,9 @@ package central_server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import client.Client;
+import local_server.LocalServerInterface;
+
 public interface CentralServerInterface extends Remote {
 	
 	/**
@@ -13,4 +16,10 @@ public interface CentralServerInterface extends Remote {
 	void registerLocalServer(String lsName) throws RemoteException;
 	
 	//String[] getLocalServersList() throws RemoteException;
+	
+	/**
+	 * 
+	 * @return -  the name of the local server to which the client will connect
+	 */
+	LocalServerInterface connect(Client c) throws RemoteException;
 }

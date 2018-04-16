@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import common.Location;
+
 public class LocalServer extends UnicastRemoteObject implements LocalServerInterface{
 	private String lsName;
+	private Location location;
 	
 	/**
 	 * do we actually need this parameter?
@@ -19,6 +22,24 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	
 	public LocalServer(String lsName) throws RemoteException {
 		this.lsName = lsName;
+		location = detectServerLocation();
+	}
+	
+	/**
+	 * Used for simulating the server being in a different location than the current one
+	 * @param lsName
+	 * @param hardcodedLocation
+	 * @throws RemoteException
+	 */
+	public LocalServer(String lsName, Location hardcodedLocation) throws RemoteException {
+		this.lsName = lsName;
+		this.location = hardcodedLocation;
+	}
+
+	private Location detectServerLocation() {
+		Location lsLoc = null;
+		
+		return lsLoc;
 	}
 
 	public void setFileLocation(String d){
@@ -66,6 +87,11 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	@Override
 	public String getLocalServerName() {
 		return lsName;
+	}
+
+	@Override
+	public Location getLS_Location() throws RemoteException {
+		return location;
 	}
 
 }

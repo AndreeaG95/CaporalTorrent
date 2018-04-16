@@ -3,6 +3,8 @@ package local_server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import common.Location;
+
 public interface LocalServerInterface extends Remote{
 	
 	/* Method for sending a file from a local server to the connected client */
@@ -11,4 +13,6 @@ public interface LocalServerInterface extends Remote{
 	public String[] listFiles(String serverpath) throws RemoteException;
 	
 	String getLocalServerName() throws RemoteException;
+	
+	Location getLS_Location() throws RemoteException;
 }

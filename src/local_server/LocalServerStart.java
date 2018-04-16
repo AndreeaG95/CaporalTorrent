@@ -6,6 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import central_server.CentralServerInterface;
+import common.Constants;
 
 public class LocalServerStart {
 	public static void main(String[] args) {
@@ -20,7 +21,7 @@ public class LocalServerStart {
 			String localServerName = ls.getLocalServerName();
 			
 			//register the LS to the central server
-			CentralServerInterface csi = (CentralServerInterface)Naming.lookup("rmi://localhost/CentralServer");
+			CentralServerInterface csi = (CentralServerInterface)Naming.lookup("rmi://" + Constants.CS_IP + "/" + Constants.CS_NAME );
 			csi.registerLocalServer(localServerName);
 			
 			Naming.rebind("rmi://localhost/" + localServerName, ls);
