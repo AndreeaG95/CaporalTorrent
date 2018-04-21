@@ -31,33 +31,36 @@ public class Location {
 		return "(" + latitude + "," + longitude + ")";
 	}
 
-	// formula took from https://www.movable-type.co.uk/scripts/latlong.html
-	// should write some unit tests to see if it works with negative values (34
-	// S = -34)
+	// formula for computing the distance: https://www.geodatasource.com/developers/java
 	/**
 	 * 
 	 * @param other
 	 * @return distance in km 
 	 */
 	public double getDistance(Location other) {
-		double distance = 0;
-		int earthRadius = 6371000;
-		double phi_1 = toRadians(latitude);
-		double phi_2 = toRadians(other.getLatitude());
-		double delta_phi = toRadians(other.getLatitude() - latitude);
-		double delta_lambda = toRadians(other.getLongitude() - longitude);
+		double theta = this.longitude - other.longitude;
+		double dist = Math.sin(deg2rad(this.latitude)) * Math.sin(deg2rad(other.latitude)) + Math.cos(deg2rad(this.latitude)) * Math.cos(deg2rad(other.latitude)) * Math.cos(deg2rad(theta));
+		dist = Math.acos(dist);
+		dist = rad2deg(dist);
+		dist = dist * 60 * 1.1515;
 
-		double a = Math.sin(delta_phi / 2) * Math.sin(delta_phi / 2)
-				+ Math.cos(phi_1) * Math.cos(phi_2) * Math.sin(delta_lambda / 2) * Math.sin(delta_lambda / 2);
+		// we are using kilometers.
+		dist = dist * 1.609344;
 
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		
-		distance = earthRadius - c; //in meters
-		
-		return distance / 1000;
+		return (dist);
+	}
+	
+	/********************************************************************/
+	/*	This function converts decimal degrees to radians				*/
+	/********************************************************************/
+	private static double deg2rad(double deg) {
+		return (deg * Math.PI / 180.0);
 	}
 
-	private double toRadians(double degrees) {
-		return  (degrees * 3.14) / 180;
+	/********************************************************************/
+	/*	This function converts radians to decimal degrees				*/
+	/********************************************************************/
+	private static double rad2deg(double rad) {
+		return (rad * 180 / Math.PI);
 	}
 }

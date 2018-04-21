@@ -33,6 +33,7 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	public CentralServer() throws RemoteException {
 		super();
 		System.out.println("Initializing " + Constants.CS_NAME + " ...");
+		
 		//count how many  clients are connected to a local server
 		serversToClients = new HashMap<>();
 	}

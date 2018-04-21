@@ -9,7 +9,6 @@ import common.Location;
 public class LocationTest {
 
 	@Test
-	//FIXME getDistance() doesn't work correctly
 	public void test1() {
 		Location loc1 = new Location(-35.84, 21.35);
 		Location loc2 = new Location(45.89, 21.28);
