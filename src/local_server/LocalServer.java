@@ -65,6 +65,7 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 
 		// TODO when location is set notify that the central server can be used
 		es.shutdown();
+		System.out.println(location.toString());
 	}
 
 	public void setFileLocation(String d) {
@@ -102,6 +103,8 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	}
 
 	public String[] listFiles(String serverpath) throws RemoteException {
+		System.out.println("Listing files...");
+		
 		File serverpathdir = new File(serverpath);
 		return serverpathdir.list();
 

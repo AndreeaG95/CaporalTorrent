@@ -3,22 +3,14 @@ package central_server;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import client.Client;
 import common.Constants;
-import common.FindLocationTask;
 import common.Location;
 import local_server.LocalServerInterface;
 
@@ -27,14 +19,14 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	 * needed for serialization
 	 */
 	private static final long serialVersionUID = 2L;
-	private List<LocalServerInterface> servers;
+	// TODO: Is this useless??
 	private HashMap<LocalServerInterface, ArrayList<Client>> serversToClients;
 	
 	public CentralServer() throws RemoteException {
 		super();
 		System.out.println("Initializing " + Constants.CS_NAME + " ...");
 		
-		//count how many  clients are connected to a local server
+		// Count how many clients are connected to a local server.
 		serversToClients = new HashMap<>();
 	}
 
@@ -46,6 +38,7 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 			
 			ArrayList<Client> clients = new ArrayList<Client>();
 			serversToClients.put(newLocalServer,clients);
+		
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -56,26 +49,23 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	}
 
 	@Override
-	public LocalServerInterface connect(Client c) throws RemoteException {
+	public LocalServerInterface getLocalServer(Location c) throws RemoteException {
 		LocalServerInterface nearestLS = null;
-		Location clientLocation = c.getLocation();
-		Location lsLocation;
+		Location clientLocation = c;
 		double minDistance = Double.MAX_VALUE;
 
-
-		// detect which ls is closest to client
+		// Detect which LS is closest to client.
 		for (Entry<LocalServerInterface, ArrayList<Client>> e : serversToClients.entrySet()) {
 			LocalServerInterface currLS = e.getKey();
 			Location currentLsLoc = currLS.getLS_Location();
 			double currentDistance = clientLocation.getDistance(currentLsLoc);
-			
 			if (currentDistance < minDistance){
 				minDistance = currentDistance;
 				nearestLS = currLS;
 			}
 		}
-
-		serversToClients.get(nearestLS).add(c);
+		
+		//serversToClients.get(nearestLS).add(c);
 		return nearestLS;
 	}
 

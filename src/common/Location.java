@@ -1,6 +1,13 @@
 package common;
 
-public class Location {
+import java.io.Serializable;
+
+public class Location implements Serializable{
+	/**
+	 * Needed for serialization.
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private double latitude;
 	private double longitude;
 
@@ -26,14 +33,8 @@ public class Location {
 		this.longitude = longitude;
 	}
 
-	@Override
-	public String toString() {
-		return "(" + latitude + "," + longitude + ")";
-	}
-
-	// formula for computing the distance: https://www.geodatasource.com/developers/java
 	/**
-	 * 
+	 * formula for computing the distance: https://www.geodatasource.com/developers/java
 	 * @param other
 	 * @return distance in km 
 	 */
@@ -62,5 +63,10 @@ public class Location {
 	/********************************************************************/
 	private static double rad2deg(double rad) {
 		return (rad * 180 / Math.PI);
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + latitude + "," + longitude + ")";
 	}
 }

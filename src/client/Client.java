@@ -2,14 +2,17 @@ package client;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import central_server.CentralServerInterface;
+import common.Constants;
 import common.FindLocationTask;
 import common.Location;
 import common.LocationDetectedListener;
@@ -18,10 +21,18 @@ import local_server.LocalServerInterface;
 public class Client  implements LocationDetectedListener{
 	private Location location;
 	private String cName;
+	private CentralServerInterface CSserver;
 
 	public Client(String cName) {
 		this.cName = cName;
 		setClientLocation();
+		
+		try {
+			CSserver = (CentralServerInterface) Naming.lookup("rmi://localhost/"+Constants.CS_NAME);
+		} catch (MalformedURLException | RemoteException | NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void setClientLocation() {
@@ -44,7 +55,59 @@ public class Client  implements LocationDetectedListener{
 		//TODO when location is set notify that the central server can be used
 		es.shutdown();
 	}
-
+	
+	// TODO: Error checks.
+	// We ask each time for a new local server in case the one we used before crashed or is busy. 
+	public void downloadFile(String serverpath, String clientpath){
+		try {
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver.getLocalServer(location);
+			
+			if(LSserver == null){
+				System.out.println("Server unavailibe. Please try again later.");
+				System.exit(0);
+			}
+			System.out.println("Server is: " + LSserver.getLocalServerName());
+			
+			byte [] mydata = LSserver.downloadFile(serverpath);
+			System.out.println("downloading...");
+			
+			File clientpathfile = new File(clientpath);
+			FileOutputStream out = new FileOutputStream(clientpathfile);				
+    		
+			System.out.println("Finished downloading !");
+			
+			out.write(mydata);
+			out.flush();
+	    	out.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void listFiles(String serverpath){
+		try {
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver.getLocalServer(location);
+			
+			String[] filelist;
+			filelist = LSserver.listFiles(serverpath);
+			for (String i: filelist)
+			{
+				System.out.println(i);
+			}
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void shutdown(){
+		System.exit(0);
+		System.out.println("Client has shutdown.");
+	}
+	
+/*
 	public static void main(String[] args) {
 		String download = "download";
 		String dir = "list";
@@ -55,7 +118,8 @@ public class Client  implements LocationDetectedListener{
 		
 		
 		try{
-			LocalServerInterface server = (LocalServerInterface) Naming.lookup("rmi://localhost/LocalServer1");
+			
+			
 			
 			//to download a file
 			if(download.equals(args[0]))
@@ -98,6 +162,7 @@ public class Client  implements LocationDetectedListener{
 			System.out.println("error with connection or command. Check your hostname or command");
 		}
 	}
+	*/
 
 	@Override
 	public void locationDetected() {

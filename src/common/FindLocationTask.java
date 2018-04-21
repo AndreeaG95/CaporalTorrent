@@ -46,6 +46,7 @@ public class FindLocationTask implements Callable<Location> {
 			while (((inputLine = bufferedReader.readLine()) != null) && (!inputLine.contains("Longitude"))) {
 				//System.out.println(inputLine);
 			}
+			
 			inputLine = bufferedReader.readLine();
 			String[] latLongArr= inputLine.trim().substring(14, 29).split(",");
 			

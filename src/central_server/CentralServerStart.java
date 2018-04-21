@@ -1,8 +1,6 @@
 package central_server;
 
-import java.net.MalformedURLException;
 import java.rmi.Naming;
-import java.rmi.RemoteException;
 
 import common.Constants;
 
@@ -13,7 +11,7 @@ public class CentralServerStart {
 			CentralServer centralServer = new CentralServer();
 			
 			Naming.rebind("rmi://" + Constants.CS_IP + "/" + Constants.CS_NAME , centralServer);
-			
+			//Naming.rebind("rmi://localhost/NASDAQ", centralServer);
 			System.out.println("Central server has started!");
 			
 		} catch (Exception e) {
