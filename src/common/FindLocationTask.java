@@ -9,7 +9,14 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 public class FindLocationTask implements Callable<Location> {
+	private LocationDetectedListener listener;
+
 	
+	public FindLocationTask(LocationDetectedListener listener) {
+		this.listener = listener;
+	}
+
+
 	@Override
 	public Location call() throws Exception {
 		URL whatismyip;
@@ -54,6 +61,8 @@ public class FindLocationTask implements Callable<Location> {
 			
 			location = new Location(latitude, longitude);
 
+			listener.locationDetected();
+			
 			return location;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();

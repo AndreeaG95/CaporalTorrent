@@ -7,7 +7,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,35 +27,14 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	 * needed for serialization
 	 */
 	private static final long serialVersionUID = 2L;
-	private Location csLocation;
-	public List<LocalServerInterface> servers;
-
+	private List<LocalServerInterface> servers;
+	private HashMap<LocalServerInterface, ArrayList<Client>> serversToClients;
+	
 	public CentralServer() throws RemoteException {
 		super();
 		System.out.println("Initializing " + Constants.CS_NAME + " ...");
-		servers = new ArrayList<>();
-		setServerLocation();
-	}
-
-	private void setServerLocation() {
-		ExecutorService es = Executors.newSingleThreadExecutor();
-		FindLocationTask task = new FindLocationTask();
-		
-		//a Future object can be used to fetch the result of the task when it is available.
-		Future<Location> future = es.submit(task);
-		
-		try {
-			csLocation = future.get();
-		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
-			e.printStackTrace();
-		}
-		
-		//TODO when location is set notify that the central server can be used
-		es.shutdown();
+		//count how many  clients are connected to a local server
+		serversToClients = new HashMap<>();
 	}
 
 	@Override
@@ -60,7 +42,9 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 		try {
 			LocalServerInterface newLocalServer = (LocalServerInterface) Naming
 					.lookup("rmi://" + Constants.CS_IP + "/" + lsName);
-			servers.add(newLocalServer);
+			
+			ArrayList<Client> clients = new ArrayList<Client>();
+			serversToClients.put(newLocalServer,clients);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (RemoteException e) {
@@ -73,13 +57,24 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	@Override
 	public LocalServerInterface connect(Client c) throws RemoteException {
 		LocalServerInterface nearestLS = null;
-		
-		//
-		nearestLS = servers.get(0);
-		int serversSize = servers.size();
-		
-		//TODO detect which ls is closest to client 
-		
+		Location clientLocation = c.getLocation();
+		Location lsLocation;
+		double minDistance = Double.MAX_VALUE;
+
+
+		// detect which ls is closest to client
+		for (Entry<LocalServerInterface, ArrayList<Client>> e : serversToClients.entrySet()) {
+			LocalServerInterface currLS = e.getKey();
+			Location currentLsLoc = currLS.getLS_Location();
+			double currentDistance = clientLocation.getDistance(currentLsLoc);
+			
+			if (currentDistance < minDistance){
+				minDistance = currentDistance;
+				nearestLS = currLS;
+			}
+		}
+
+		serversToClients.get(nearestLS).add(c);
 		return nearestLS;
 	}
 

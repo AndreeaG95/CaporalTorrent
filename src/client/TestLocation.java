@@ -21,26 +21,8 @@ import java.util.concurrent.Future;
 import common.Constants;
 import common.FindLocationTask;
 import common.Location;
+import common.LocationDetectedListener;
 
-public class TestLocation {
-	public static void main(String[] args) throws IOException {
-		ExecutorService es = Executors.newSingleThreadExecutor();
-		FindLocationTask task = new FindLocationTask();
-		Future<Location> future = es.submit(task);
-		Location location = null;
+public class TestLocation   {
 
-		try {
-			location = future.get();
-		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
-			e.printStackTrace();
-		}
-
-		System.out.println("Location: " + location);
-
-		es.shutdown();
-	}
 }

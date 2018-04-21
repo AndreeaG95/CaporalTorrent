@@ -5,10 +5,45 @@ import java.io.FileOutputStream;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import common.FindLocationTask;
+import common.Location;
+import common.LocationDetectedListener;
 import local_server.LocalServerInterface;
 
-public class Client {
+public class Client  implements LocationDetectedListener{
+	private Location location;
+	private String cName;
+
+	public Client(String cName) {
+		this.cName = cName;
+		setClientLocation();
+	}
+	
+	private void setClientLocation() {
+		ExecutorService es = Executors.newSingleThreadExecutor();
+		FindLocationTask task = new FindLocationTask(this);
+		
+		//a Future object can be used to fetch the result of the task when it is available.
+		Future<Location> future = es.submit(task);
+		
+		try {
+			location = future.get();
+		} catch (InterruptedException e) {
+			System.err.println("Couldn't get the location for client " + cName);
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			System.err.println("Couldn't get the location for client " + cName);
+			e.printStackTrace();
+		}
+		
+		//TODO when location is set notify that the central server can be used
+		es.shutdown();
+	}
 
 	public static void main(String[] args) {
 		String download = "download";
@@ -63,4 +98,14 @@ public class Client {
 			System.out.println("error with connection or command. Check your hostname or command");
 		}
 	}
+
+	@Override
+	public void locationDetected() {
+		System.out.println("Location was detected. Client ready!");
+	}
+	
+	public Location getLocation(){
+		return location;
+	}
+
 }
