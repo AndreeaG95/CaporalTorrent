@@ -50,9 +50,9 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	}
 
 	@Override
-	public LocalServerInterface getLocalServer(ClientId cId) throws RemoteException {
+	public LocalServerInterface getLocalServer(Location c) throws RemoteException {
 		LocalServerInterface nearestLS = null;
-		Location clientLocation = cId.getLocation();
+		Location clientLocation = c;
 		double minDistance = Double.MAX_VALUE;
 
 		// Detect which LS is closest to client.

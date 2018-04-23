@@ -28,8 +28,8 @@ public class LocalServerStart {
 			csi.registerLocalServer(localServerName);
 			csi.registerLocalServer(localServerName2);
 			
-//			System.out.println("Local Server <" + localServerName + "> has started!");
-//			System.out.println("Local Server <" + localServerName2 + "> has started!");
+			System.out.println("Local Server <" + localServerName + "> has started!");
+			System.out.println("Local Server <" + localServerName2 + "> has started!");
 			
 		}catch(Exception e){
 			e.printStackTrace();
