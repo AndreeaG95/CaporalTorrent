@@ -22,20 +22,17 @@ public class FindLocationTask implements Callable<Location> {
 		URL whatismyip;
 		Location location = null;
 		try {
-			long starttime = System.currentTimeMillis();
+			//long starttime = System.currentTimeMillis();
 			whatismyip = new URL("http://checkip.amazonaws.com");
 			BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
 			
 			String internetIp = in.readLine(); // you get the IP as a String
-			System.out.println(internetIp);
+		//	System.out.println(internetIp);
 			
 			URL ipToLocationUrl = new URL("https://ipinfo.io/" + internetIp);
 			HttpURLConnection connection = (HttpURLConnection) ipToLocationUrl.openConnection();
 			connection.setRequestMethod("GET");
 			
-			//TODO maybe delete these lines, see if the location detection is faster
-			//connection.setReadTimeout(2000);
-			//connection.setConnectTimeout(2000);
 			
 			// execute the request
 			int status = connection.getResponseCode();
