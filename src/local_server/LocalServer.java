@@ -22,10 +22,9 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 
 	private static final long serialVersionUID = 1L;
 
-	private String dir = "";
 
 	public LocalServer(String lsName) throws RemoteException {
-		System.out.println("Initializing <<" + lsName + ">> ...");
+		System.out.println("\nInitializing <<" + lsName + ">> ...");
 		this.lsName = lsName;
 		setServerLocation();
 	}
@@ -39,7 +38,7 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	 * @throws RemoteException
 	 */
 	public LocalServer(String lsName, Location hardcodedLocation) throws RemoteException {
-		System.out.println("Initializing <<" + lsName + ">> ...");
+		System.out.println("\nInitializing <<" + lsName + ">> ...");
 		this.lsName = lsName;
 		this.location = hardcodedLocation;
 		System.out.println(lsName + " is ready to use!");
@@ -64,12 +63,8 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 		}
 
 		es.shutdown();
-		System.out.println(location.toString());
 	}
 
-	public void setFileLocation(String d) {
-		dir = d;
-	}
 
 	@Override
 	public byte[] downloadFile(String file) throws RemoteException {

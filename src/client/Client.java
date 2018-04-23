@@ -1,6 +1,7 @@
 package client;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -20,13 +21,13 @@ import local_server.LocalServerInterface;
 
 public class Client implements LocationDetectedListener {
 	private ClientId cId;
-	private CentralServerInterface CSserver;
+	private CentralServerInterface centralServer;
 
 	public Client(String cName) {
-		configureClient(cName);
+		System.out.println("Initializing client : <<" + cName + " >>");
 
 		try {
-			CSserver = (CentralServerInterface) Naming
+			centralServer = (CentralServerInterface) Naming.lookup("rmi://localhost/" + Constants.CS_NAME);
 					.lookup("rmi://localhost/" + Constants.CS_NAME);
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
@@ -69,15 +70,15 @@ public class Client implements LocationDetectedListener {
 	// number of downloads performed
 	public void downloadFile(String serverpath, String clientpath) {
 		try {
-			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver.getLocalServer(location);
 					.getLocalServer(cId);
 
-			if (LSserver == null) {
+			if ((LSserver == null) || (location == null)) {
 				System.out
 						.println("Server unavailibe. Please try again later.");
 				System.exit(0);
 			}
-			System.out.println("Server is: " + LSserver.getLocalServerName());
+			System.out.println("\nDownloading from: " + LSserver.getLocalServerName());
 
 			byte[] mydata = LSserver.downloadFile(serverpath);
 			System.out.println("downloading...");
@@ -85,20 +86,23 @@ public class Client implements LocationDetectedListener {
 			File clientpathfile = new File(clientpath);
 			FileOutputStream out = new FileOutputStream(clientpathfile);
 
-			System.out.println("Finished downloading !");
 
 			out.write(mydata);
 			out.flush();
 			out.close();
-		} catch (Exception e) {
-			System.err.println("Couldn't download file, client:" + cId.getClientName());
+			System.out.println("Finished downloading !");
+		}
+		catch(FileNotFoundException e){
+			System.err.println("Cannot create file on client side");
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void listFiles(String serverpath) {
 		try {
-			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
 					.getLocalServer(cId);
 
 			String[] filelist;

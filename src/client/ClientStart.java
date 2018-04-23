@@ -1,11 +1,13 @@
 package client;
 
+import java.util.concurrent.TimeUnit;
+
 public class ClientStart {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		Client c = new Client("client1");
 		
-		c.downloadFile("maria.txt", "ana.txt");
+		c.downloadFile("pdf.pdf", "ana.pdf");
 		
 	}
 
