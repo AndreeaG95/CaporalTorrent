@@ -3,9 +3,8 @@ package central_server;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import client.ClientId;
 import common.Location;
-
-import client.Client;
 import local_server.LocalServerInterface;
 
 public interface CentralServerInterface extends Remote {
@@ -21,7 +20,7 @@ public interface CentralServerInterface extends Remote {
 	
 	/**
 	 * 
-	 * @return -  the name of the local server to which the client will connect
+	 * @return -   the local server to which the client will connect
 	 */
-	LocalServerInterface getLocalServer(Location c) throws RemoteException;
+	LocalServerInterface getLocalServer(ClientId cId) throws RemoteException;
 }

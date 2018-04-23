@@ -63,7 +63,6 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 			e.printStackTrace();
 		}
 
-		// TODO when location is set notify that the central server can be used
 		es.shutdown();
 		System.out.println(location.toString());
 	}

@@ -18,159 +18,147 @@ import common.Location;
 import common.LocationDetectedListener;
 import local_server.LocalServerInterface;
 
-public class Client  implements LocationDetectedListener{
-	private Location location;
-	private String cName;
+public class Client implements LocationDetectedListener {
+	private ClientId cId;
 	private CentralServerInterface CSserver;
 
 	public Client(String cName) {
-		this.cName = cName;
-		setClientLocation();
-		
+		configureClient(cName);
+
 		try {
-			CSserver = (CentralServerInterface) Naming.lookup("rmi://localhost/"+Constants.CS_NAME);
+			CSserver = (CentralServerInterface) Naming
+					.lookup("rmi://localhost/" + Constants.CS_NAME);
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	private void setClientLocation() {
+
+	private void configureClient(String cName) {
 		ExecutorService es = Executors.newSingleThreadExecutor();
 		FindLocationTask task = new FindLocationTask(this);
-		
-		//a Future object can be used to fetch the result of the task when it is available.
+
+		// a Future object can be used to fetch the result of the task when it
+		// is available.
 		Future<Location> future = es.submit(task);
-		
+
 		try {
-			location = future.get();
+			Location location = future.get();
+			this.cId = new ClientId(location, cName, "test", "test");
 		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err
+					.println("Couldn't get the location for client " + "test");
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err
+					.println("Couldn't get the location for client " + "test");
 			e.printStackTrace();
 		}
-		
-		//TODO when location is set notify that the central server can be used
+
+		// TODO when location is set notify that the central server can be used
 		es.shutdown();
 	}
-	
+
 	// TODO: Error checks.
-	// We ask each time for a new local server in case the one we used before crashed or is busy. 
-	public void downloadFile(String serverpath, String clientpath){
+	// We ask each time for a new local server in case the one we used before
+	// crashed or is busy.
+
+	// FIXME If we ask each time the CS to give us a LS then each time we should
+	// recompute Client location(which takes time)
+	// maybe it would be better to ask only after a timer expires or after a
+	// number of downloads performed
+	public void downloadFile(String serverpath, String clientpath) {
 		try {
-			LocalServerInterface LSserver = (LocalServerInterface) CSserver.getLocalServer(location);
-			
-			if(LSserver == null){
-				System.out.println("Server unavailibe. Please try again later.");
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+					.getLocalServer(cId);
+
+			if (LSserver == null) {
+				System.out
+						.println("Server unavailibe. Please try again later.");
 				System.exit(0);
 			}
 			System.out.println("Server is: " + LSserver.getLocalServerName());
-			
-			byte [] mydata = LSserver.downloadFile(serverpath);
+
+			byte[] mydata = LSserver.downloadFile(serverpath);
 			System.out.println("downloading...");
-			
+
 			File clientpathfile = new File(clientpath);
-			FileOutputStream out = new FileOutputStream(clientpathfile);				
-    		
+			FileOutputStream out = new FileOutputStream(clientpathfile);
+
 			System.out.println("Finished downloading !");
-			
+
 			out.write(mydata);
 			out.flush();
-	    	out.close();
+			out.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.err.println("Couldn't download file, client:" + cId.getClientName());
 			e.printStackTrace();
 		}
 	}
-	
-	public void listFiles(String serverpath){
+
+	public void listFiles(String serverpath) {
 		try {
-			LocalServerInterface LSserver = (LocalServerInterface) CSserver.getLocalServer(location);
-			
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+					.getLocalServer(cId);
+
 			String[] filelist;
 			filelist = LSserver.listFiles(serverpath);
-			for (String i: filelist)
-			{
+			for (String i : filelist) {
 				System.out.println(i);
 			}
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	public void shutdown(){
+
+	public void shutdown() {
 		System.exit(0);
 		System.out.println("Client has shutdown.");
 	}
-	
-/*
-	public static void main(String[] args) {
-		String download = "download";
-		String dir = "list";
-		String shutdown= "shutdown";
-		
-		String clientpath;
-		String serverpath;
-		
-		
-		try{
-			
-			
-			
-			//to download a file
-			if(download.equals(args[0]))
-			{
-				serverpath = args[1];
-				clientpath= args[2];
 
-				byte [] mydata = server.downloadFile(serverpath);
-				System.out.println("downloading...");
-				
-				File clientpathfile = new File(clientpath);
-				FileOutputStream out = new FileOutputStream(clientpathfile);				
-	    		
-				System.out.println("Finished downloading !");
-				
-				out.write(mydata);
-				out.flush();
-		    	out.close();
-			}
-			
-			//to list all the files in a directory
-			if(dir.equals(args[0]))
-			{
-				serverpath = args[1];
-				String[] filelist = server.listFiles(serverpath);
-				for (String i: filelist)
-				{
-					System.out.println(i);
-				}
-			}
-			
-			//to shutdown the client
-			if(shutdown.equals(args[0]))
-			{
-				System.exit(0);
-				System.out.println("Client has shutdown. Close the console");
-			}
-		}catch(Exception e) {
-			e.printStackTrace();
-			System.out.println("error with connection or command. Check your hostname or command");
-		}
-	}
-	*/
+	/*
+	 * public static void main(String[] args) { String download = "download";
+	 * String dir = "list"; String shutdown= "shutdown";
+	 * 
+	 * String clientpath; String serverpath;
+	 * 
+	 * 
+	 * try{
+	 * 
+	 * 
+	 * 
+	 * //to download a file if(download.equals(args[0])) { serverpath = args[1];
+	 * clientpath= args[2];
+	 * 
+	 * byte [] mydata = server.downloadFile(serverpath);
+	 * System.out.println("downloading...");
+	 * 
+	 * File clientpathfile = new File(clientpath); FileOutputStream out = new
+	 * FileOutputStream(clientpathfile);
+	 * 
+	 * System.out.println("Finished downloading !");
+	 * 
+	 * out.write(mydata); out.flush(); out.close(); }
+	 * 
+	 * //to list all the files in a directory if(dir.equals(args[0])) {
+	 * serverpath = args[1]; String[] filelist = server.listFiles(serverpath);
+	 * for (String i: filelist) { System.out.println(i); } }
+	 * 
+	 * //to shutdown the client if(shutdown.equals(args[0])) { System.exit(0);
+	 * System.out.println("Client has shutdown. Close the console"); }
+	 * }catch(Exception e) { e.printStackTrace(); System.out.println(
+	 * "error with connection or command. Check your hostname or command"); } }
+	 */
 
 	@Override
 	public void locationDetected() {
 		System.out.println("Location was detected. Client ready!");
 	}
-	
-	public Location getLocation(){
-		return location;
+
+	public Location getLocation() {
+		return cId.getLocation();
 	}
 
 }

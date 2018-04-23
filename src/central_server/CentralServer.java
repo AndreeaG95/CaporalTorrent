@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import client.Client;
+import client.ClientId;
 import common.Constants;
 import common.Location;
 import local_server.LocalServerInterface;
@@ -49,9 +50,9 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	}
 
 	@Override
-	public LocalServerInterface getLocalServer(Location c) throws RemoteException {
+	public LocalServerInterface getLocalServer(ClientId cId) throws RemoteException {
 		LocalServerInterface nearestLS = null;
-		Location clientLocation = c;
+		Location clientLocation = cId.getLocation();
 		double minDistance = Double.MAX_VALUE;
 
 		// Detect which LS is closest to client.
