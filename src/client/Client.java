@@ -119,7 +119,18 @@ public class Client implements LocationDetectedListener {
 		
 		System.out.println("\nUploading to: "
 				+ LSserver.getLocalServerName());
+		
+		 if(src.exists()){
+			 File file2 = new File(dest+"_copy");
+			 dest.renameTo(file2);
+		     
+			 System.out.println("file is already there");
+		  }else{
+		       System.out.println("Not find file ");
+		  }
 		copy(new FileInputStream(src), LSserver.getOutputStream(dest));
+		
+		centralServer.updateFiles(LSserver, dest);
 	}
 
 
@@ -138,6 +149,16 @@ public class Client implements LocationDetectedListener {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public boolean update(){
+		try {
+			centralServer.update();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 	public void shutdown() {

@@ -1,5 +1,11 @@
 package central_server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -19,15 +25,15 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	 * needed for serialization
 	 */
 	private static final long serialVersionUID = 2L;
-	// TODO: Is this useless??
-	private HashMap<LocalServerInterface, ArrayList<Client>> serversToClients;
+	
+	private HashMap<LocalServerInterface, ArrayList<File>> serverFiles;
 	
 	public CentralServer() throws RemoteException {
 		super();
 		System.out.println("Initializing " + Constants.CS_NAME + " ...");
 		
 		// Count how many clients are connected to a local server.
-		serversToClients = new HashMap<>();
+		serverFiles = new HashMap<>();
 	}
 
 	@Override
@@ -36,8 +42,8 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 			LocalServerInterface newLocalServer = (LocalServerInterface) Naming
 					.lookup("rmi://" + Constants.CS_IP + "/" + lsName);
 			
-			ArrayList<Client> clients = new ArrayList<Client>();
-			serversToClients.put(newLocalServer,clients);
+			ArrayList<File> files = new ArrayList<File>();
+			serverFiles.put(newLocalServer,files);
 		
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -55,7 +61,7 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 		double minDistance = Double.MAX_VALUE;
 
 		// Detect which LS is closest to client.
-		for (Entry<LocalServerInterface, ArrayList<Client>> e : serversToClients.entrySet()) {
+		for (Entry<LocalServerInterface, ArrayList<File>> e : serverFiles.entrySet()) {
 			LocalServerInterface currLS = e.getKey();
 			Location currentLsLoc = currLS.getLS_Location();
 			double currentDistance = clientLocation.getDistance(currentLsLoc);
@@ -67,6 +73,50 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 		
 		//serversToClients.get(nearestLS).add(c);
 		return nearestLS;
+	}
+	
+	public void update(){
+		System.out.println("Uploading files to the rest of the LS");
+		
+		for (Entry<LocalServerInterface, ArrayList<File>> e : serverFiles.entrySet()) {
+			LocalServerInterface currLS = e.getKey();
+			
+			
+		}
+	}
+
+	final public static int BUF_SIZE = 1024 * 64;
+	public void copy(InputStream in, OutputStream out) throws IOException {
+        
+    	System.out.println("using byte[] read/write");
+        byte[] b = new byte[BUF_SIZE];
+        int len;
+        while ((len = in.read(b)) >= 0) {
+            out.write(b, 0, len);
+        }
+        in.close();
+        out.close();
+    }
+
+	@Override
+	public void updateFiles(LocalServerInterface lSserver, File dest) {
+		ArrayList<File> files = serverFiles.get(lSserver);
+		files.add(dest);
+		serverFiles.put(lSserver, files);
+		
+		for (Entry<LocalServerInterface, ArrayList<File>> e : serverFiles.entrySet()) {
+			LocalServerInterface currLS = e.getKey();
+			
+			if(lSserver != currLS){
+				try {
+					copy(lSserver.getInputStream(dest), currLS.getOutputStream(dest));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 	}
 
 }
