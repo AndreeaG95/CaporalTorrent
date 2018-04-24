@@ -11,9 +11,6 @@ import common.Location;
 
 public interface LocalServerInterface extends Remote{
 	
-	/* Method for sending a file from a local server to the connected client */
-	public byte[] downloadFile(String file) throws RemoteException;
-	
 	public OutputStream getOutputStream(File f) throws IOException;
 	
 	public InputStream getInputStream(File f) throws IOException;
