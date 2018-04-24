@@ -19,11 +19,21 @@ import common.Location;
 import common.LocationDetectedListener;
 import local_server.LocalServerInterface;
 
-
 public class Client implements LocationDetectedListener {
+<<<<<<< HEAD
+	private ClientId cId;
+	private CentralServerInterface CSserver;
+
+	public Client(String cName) {
+		configureClient(cName);
+
+		try {
+			CSserver = (CentralServerInterface) Naming
+					.lookup("rmi://localhost/" + Constants.CS_NAME);
+=======
+	private Location location;
 	private String cName;
 	private CentralServerInterface centralServer;
-	private Location location;
 
 	public Client(String cName) {
 		System.out.println("Initializing client : <<" + cName + " >>");
@@ -32,13 +42,18 @@ public class Client implements LocationDetectedListener {
 
 		try {
 			centralServer = (CentralServerInterface) Naming.lookup("rmi://localhost/" + Constants.CS_NAME);
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+<<<<<<< HEAD
+	private void configureClient(String cName) {
+=======
 	private void setClientLocation() {
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 		ExecutorService es = Executors.newSingleThreadExecutor();
 		FindLocationTask task = new FindLocationTask(this);
 
@@ -47,22 +62,29 @@ public class Client implements LocationDetectedListener {
 		Future<Location> future = es.submit(task);
 
 		try {
-			location = future.get();
+			Location location = future.get();
+			this.cId = new ClientId(location, cName, "test", "test");
 		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err
+					.println("Couldn't get the location for client " + "test");
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err
+					.println("Couldn't get the location for client " + "test");
 			e.printStackTrace();
 		}
 
+<<<<<<< HEAD
 		// TODO when location is set notify that the central server can be used
+=======
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 		es.shutdown();
 	}
 
 	// TODO: Error checks.
 	// We ask each time for a new local server in case the one we used before
 	// crashed or is busy.
+<<<<<<< HEAD
 
 	// FIXME If we ask each time the CS to give us a LS then each time we should
 	// recompute Client location(which takes time)
@@ -70,19 +92,26 @@ public class Client implements LocationDetectedListener {
 	// number of downloads performed
 	public void downloadFile(String serverpath, String clientpath) {
 		try {
-			
-			if(location == null ){
-				System.out.println("Client location unavailibe. Please try again later.");
-				System.exit(0);
-			}
-			
-			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+					.getLocalServer(cId);
 
 			if (LSserver == null) {
+				System.out
+						.println("Server unavailibe. Please try again later.");
+				System.exit(0);
+			}
+			System.out.println("Server is: " + LSserver.getLocalServerName());
+=======
+	public void downloadFile(String serverpath, String clientpath) {
+		try {
+			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
+
+			if ((LSserver == null) || (location == null)) {
 				System.out.println("Server unavailibe. Please try again later.");
 				System.exit(0);
 			}
 			System.out.println("\nDownloading from: " + LSserver.getLocalServerName());
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 
 			byte[] mydata = LSserver.downloadFile(serverpath);
 			System.out.println("downloading...");
@@ -90,56 +119,37 @@ public class Client implements LocationDetectedListener {
 			File clientpathfile = new File(clientpath);
 			FileOutputStream out = new FileOutputStream(clientpathfile);
 
+<<<<<<< HEAD
+			System.out.println("Finished downloading !");
+=======
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 
 			out.write(mydata);
 			out.flush();
 			out.close();
+<<<<<<< HEAD
+		} catch (Exception e) {
+			System.err.println("Couldn't download file, client:" + cId.getClientName());
+=======
 			System.out.println("Finished downloading !");
 		}
 		catch(FileNotFoundException e){
 			System.err.println("Cannot create file on client side");
 		}
 		catch (Exception e) {
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 			e.printStackTrace();
 		}
 	}
-	
-	/*
-	public void uploadFile(String fileName){
-		System.out.println("Sending file " + fileName);
-		
-		/* Setup the remote input stream. The client here is actually
-		  acting as an RMI server. This code sets up an
-	      RMI server in the client, which the Local Server will then interact with to get the file data. */
-	    /*try {
-			SimpleRemoteInputStream istream = new SimpleRemoteInputStream(new FileInputStream(fileName));
-			
-			/* Call the remote method on the server.  the server will actually
-			   interact with the RMI "server" we started above to retrieve the file data.*/
-			/*if(location == null ){
-				System.out.println("Client location unavailibe. Please try again later.");
-				System.exit(0);
-			}
-			
-			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
-		    LSserver.sendFile(istream.export());
-		    
-		    istream.close();
-		} catch (FileNotFoundException e) {
-			System.err.println("File not found " + fileName);
-			System.exit(0);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
 
 	public void listFiles(String serverpath) {
 		try {
+<<<<<<< HEAD
+			LocalServerInterface LSserver = (LocalServerInterface) CSserver
+					.getLocalServer(cId);
+=======
 			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 
 			String[] filelist;
 			filelist = LSserver.listFiles(serverpath);
@@ -198,7 +208,11 @@ public class Client implements LocationDetectedListener {
 	}
 
 	public Location getLocation() {
+<<<<<<< HEAD
+		return cId.getLocation();
+=======
 		return location;
+>>>>>>> decc3a4798f3f1ae5060896fc6911ec6d57d8c42
 	}
 
 }

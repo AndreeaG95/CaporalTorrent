@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import client.Client;
-import client.ClientId;
 import common.Constants;
 import common.Location;
 import local_server.LocalServerInterface;

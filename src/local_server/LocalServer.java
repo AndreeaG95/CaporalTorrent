@@ -118,5 +118,39 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	public void locationDetected() {
 		System.out.println(lsName + " is ready to use!");
 	}
+	
+	/*
+	public void sendFile(RemoteInputStream ristream) throws IOException {
+	      InputStream istream = RemoteInputStreamClient.wrap(ristream);
+	      FileOutputStream ostream = null;
+	      try {
+
+	        File tempFile = File.createTempFile("sentFile_", ".dat");
+	        ostream = new FileOutputStream(tempFile);
+	        System.out.println("Writing file " + tempFile);
+
+	        byte[] buf = new byte[1024];
+
+	        int bytesRead = 0;
+	        while((bytesRead = istream.read(buf)) >= 0) {
+	          ostream.write(buf, 0, bytesRead);
+	        }
+	        ostream.flush();
+
+	        System.out.println("Finished writing file " + tempFile);
+	        
+	      } finally {
+	        try {
+	          if(istream != null) {
+	            istream.close();
+	          }
+	        } finally {
+	          if(ostream != null) {
+	            ostream.close();
+	          }
+	        }
+	      }
+	    }
+	    */
 
 }
