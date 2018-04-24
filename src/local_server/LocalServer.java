@@ -2,8 +2,10 @@ package local_server;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +16,10 @@ import java.util.concurrent.Future;
 import common.FindLocationTask;
 import common.Location;
 import common.LocationDetectedListener;
+import rmiIO.RMIInputStream;
+import rmiIO.RMIInputStreamImpl;
+import rmiIO.RMIOutputStream;
+import rmiIO.RMIOutputStreamImpl;
 
 public class LocalServer extends UnicastRemoteObject implements LocalServerInterface, LocationDetectedListener {
 	private String lsName;
@@ -69,36 +75,6 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	}
 
 
-	@Override
-	public byte[] downloadFile(String file) throws RemoteException {
-		byte[] mydata;
-
-		File serverpathfile = new File(file);
-		mydata = new byte[(int) serverpathfile.length()];
-		FileInputStream in;
-		try {
-			in = new FileInputStream(serverpathfile);
-			try {
-				in.read(mydata, 0, mydata.length);
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
-			try {
-				in.close();
-			} catch (IOException e) {
-
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-
-			e.printStackTrace();
-		}
-
-		return mydata;
-	}
-
 	public String[] listFiles() throws RemoteException {
 		System.out.println("Listing files...");
 		
@@ -122,38 +98,18 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 		System.out.println(lsName + " is ready to use!");
 	}
 	
-	/*
-	public void sendFile(RemoteInputStream ristream) throws IOException {
-	      InputStream istream = RemoteInputStreamClient.wrap(ristream);
-	      FileOutputStream ostream = null;
-	      try {
+	public OutputStream getOutputStream(File f) throws IOException {
+	    return new RMIOutputStream(new RMIOutputStreamImpl(new FileOutputStream(f)));
+	}
 
-	        File tempFile = File.createTempFile("sentFile_", ".dat");
-	        ostream = new FileOutputStream(tempFile);
-	        System.out.println("Writing file " + tempFile);
+	public InputStream getInputStream(File f) throws IOException {
+	    return new RMIInputStream(new RMIInputStreamImpl(new FileInputStream(f)));
+	}
 
-	        byte[] buf = new byte[1024];
-
-	        int bytesRead = 0;
-	        while((bytesRead = istream.read(buf)) >= 0) {
-	          ostream.write(buf, 0, bytesRead);
-	        }
-	        ostream.flush();
-
-	        System.out.println("Finished writing file " + tempFile);
-	        
-	      } finally {
-	        try {
-	          if(istream != null) {
-	            istream.close();
-	          }
-	        } finally {
-	          if(ostream != null) {
-	            ostream.close();
-	          }
-	        }
-	      }
-	    }
-	    */
+	@Override
+	public String getStoragePath() throws RemoteException {
+		return storage_folder;
+	}
+	
 
 }

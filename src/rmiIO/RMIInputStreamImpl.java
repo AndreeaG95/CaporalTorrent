@@ -12,7 +12,7 @@ public class RMIInputStreamImpl implements RMIInputStreamInterf {
 
 	public RMIInputStreamImpl(InputStream in) throws IOException {
 		this.in = in;
-		UnicastRemoteObject.exportObject(this, 1099);
+		UnicastRemoteObject.exportObject(this, 5000);
 	}
 
 	public void close() throws IOException, RemoteException {
@@ -29,7 +29,7 @@ public class RMIInputStreamImpl implements RMIInputStreamInterf {
 	            b = new byte[len];
 	            
 	        int len2 = in.read(b);
-	        if (len2 == 0)
+	        if (len2 < 0)
 	            return null; // EOF reached
 	        
 	        if (len2 != len) {

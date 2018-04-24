@@ -21,11 +21,6 @@ public class LocalServerStart {
 			String localServerName = ls.getLocalServerName();
 			String localServerName2 = ls.getLocalServerName();
 			
-			String files[] = ls2.listFiles();
-			for (String string : files) {
-				System.out.println(string);
-			}
-			
 			Naming.rebind("rmi://localhost/" + localServerName, ls);
 			Naming.rebind("rmi://localhost/" + localServerName2, ls2);
 			
