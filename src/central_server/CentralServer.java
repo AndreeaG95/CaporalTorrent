@@ -19,7 +19,6 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 	 * needed for serialization
 	 */
 	private static final long serialVersionUID = 2L;
-	// TODO: Is this useless??
 	private HashMap<LocalServerInterface, ArrayList<Client>> serversToClients;
 	
 	public CentralServer() throws RemoteException {

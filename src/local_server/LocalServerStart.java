@@ -15,10 +15,16 @@ public class LocalServerStart {
 		}
 		
 		try{
-			LocalServer ls = new LocalServer("LocalServer1", new Location(53.2734, -7.778320310000026));
-			LocalServer ls2 = new LocalServer("LocalServer2");
+			Location testLocation = new Location(53.2734, -7.778320310000026);
+			LocalServer ls = new LocalServer("LocalServer1", testLocation, "D:\\proiecte\\NewEcWorkspace\\CaporalTorrent\\Storage_Folder");
+			LocalServer ls2 = new LocalServer("LocalServer2", "D:\\proiecte\\NewEcWorkspace\\CaporalTorrent\\Storage_Folder");
 			String localServerName = ls.getLocalServerName();
 			String localServerName2 = ls.getLocalServerName();
+			
+			String files[] = ls2.listFiles();
+			for (String string : files) {
+				System.out.println(string);
+			}
 			
 			Naming.rebind("rmi://localhost/" + localServerName, ls);
 			Naming.rebind("rmi://localhost/" + localServerName2, ls2);

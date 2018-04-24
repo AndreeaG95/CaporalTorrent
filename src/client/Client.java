@@ -7,6 +7,9 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,21 +22,28 @@ import common.Location;
 import common.LocationDetectedListener;
 import local_server.LocalServerInterface;
 
-
 public class Client implements LocationDetectedListener {
-	private String cName;
 	private CentralServerInterface centralServer;
-	private Location location;
+	private ClientId cId;
+	private List<String> filesAvailableForDownload;
+
+	// commands
+	private static final String EXIT = "exit";
+	private static final String DOWNLOAD = "download";
+	private static final String LIST_FILES = "listFiles";
 
 	public Client(String cName) {
 		System.out.println("Initializing client : <<" + cName + " >>");
-		this.cName = cName;
+
+		cId = new ClientId(null, cName, "test", "test");
+		
 		setClientLocation();
 
 		try {
-			centralServer = (CentralServerInterface) Naming.lookup("rmi://localhost/" + Constants.CS_NAME);
+			centralServer = (CentralServerInterface) Naming
+					.lookup("rmi://" + Constants.CS_IP + "/" + Constants.CS_NAME);
+
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -47,16 +57,16 @@ public class Client implements LocationDetectedListener {
 		Future<Location> future = es.submit(task);
 
 		try {
-			location = future.get();
+			cId.setLocation(future.get());
+			
 		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err.println("Couldn't get the location for client " + cId.getClientName());
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for client " + cName);
+			System.err.println("Couldn't get the location for client " + cId.getClientName());
 			e.printStackTrace();
 		}
 
-		// TODO when location is set notify that the central server can be used
 		es.shutdown();
 	}
 
@@ -70,79 +80,44 @@ public class Client implements LocationDetectedListener {
 	// number of downloads performed
 	public void downloadFile(String serverpath, String clientpath) {
 		try {
-			
-			if(location == null ){
+
+			if (cId.getLocation() == null) {
 				System.out.println("Client location unavailibe. Please try again later.");
 				System.exit(0);
 			}
-			
-			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
 
-			if (LSserver == null) {
+			LocalServerInterface localServer = centralServer.getLocalServer(cId.getLocation());
+			
+			if (localServer == null) {
 				System.out.println("Server unavailibe. Please try again later.");
 				System.exit(0);
 			}
-			System.out.println("\nDownloading from: " + LSserver.getLocalServerName());
+			System.out.println("\nDownloading from: " + localServer.getLocalServerName());
 
-			byte[] mydata = LSserver.downloadFile(serverpath);
+			byte[] mydata = localServer.downloadFile(serverpath);
 			System.out.println("downloading...");
 
 			File clientpathfile = new File(clientpath);
 			FileOutputStream out = new FileOutputStream(clientpathfile);
 
-
 			out.write(mydata);
 			out.flush();
 			out.close();
 			System.out.println("Finished downloading !");
-		}
-		catch(FileNotFoundException e){
+		} catch (FileNotFoundException e) {
 			System.err.println("Cannot create file on client side");
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	/*
-	public void uploadFile(String fileName){
-		System.out.println("Sending file " + fileName);
-		
-		/* Setup the remote input stream. The client here is actually
-		  acting as an RMI server. This code sets up an
-	      RMI server in the client, which the Local Server will then interact with to get the file data. */
-	    /*try {
-			SimpleRemoteInputStream istream = new SimpleRemoteInputStream(new FileInputStream(fileName));
-			
-			/* Call the remote method on the server.  the server will actually
-			   interact with the RMI "server" we started above to retrieve the file data.*/
-			/*if(location == null ){
-				System.out.println("Client location unavailibe. Please try again later.");
-				System.exit(0);
-			}
-			
-			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
-		    LSserver.sendFile(istream.export());
-		    
-		    istream.close();
-		} catch (FileNotFoundException e) {
-			System.err.println("File not found " + fileName);
-			System.exit(0);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
 
-	public void listFiles(String serverpath) {
+	public void printFiles() {
 		try {
-			LocalServerInterface LSserver = (LocalServerInterface) centralServer.getLocalServer(location);
+
+			LocalServerInterface localServer = centralServer.getLocalServer(cId.getLocation());
 
 			String[] filelist;
-			filelist = LSserver.listFiles(serverpath);
+			filelist = localServer.listFiles();
 			for (String i : filelist) {
 				System.out.println(i);
 			}
@@ -157,48 +132,71 @@ public class Client implements LocationDetectedListener {
 		System.exit(0);
 		System.out.println("Client has shutdown.");
 	}
-
-	/*
-	 * public static void main(String[] args) { String download = "download";
-	 * String dir = "list"; String shutdown= "shutdown";
-	 * 
-	 * String clientpath; String serverpath;
-	 * 
-	 * 
-	 * try{
-	 * 
-	 * 
-	 * 
-	 * //to download a file if(download.equals(args[0])) { serverpath = args[1];
-	 * clientpath= args[2];
-	 * 
-	 * byte [] mydata = server.downloadFile(serverpath);
-	 * System.out.println("downloading...");
-	 * 
-	 * File clientpathfile = new File(clientpath); FileOutputStream out = new
-	 * FileOutputStream(clientpathfile);
-	 * 
-	 * System.out.println("Finished downloading !");
-	 * 
-	 * out.write(mydata); out.flush(); out.close(); }
-	 * 
-	 * //to list all the files in a directory if(dir.equals(args[0])) {
-	 * serverpath = args[1]; String[] filelist = server.listFiles(serverpath);
-	 * for (String i: filelist) { System.out.println(i); } }
-	 * 
-	 * //to shutdown the client if(shutdown.equals(args[0])) { System.exit(0);
-	 * System.out.println("Client has shutdown. Close the console"); }
-	 * }catch(Exception e) { e.printStackTrace(); System.out.println(
-	 * "error with connection or command. Check your hostname or command"); } }
-	 */
-
+	
 	@Override
 	public void locationDetected() {
 		System.out.println("Location was detected. Client ready!");
 	}
 
 	public Location getLocation() {
-		return location;
+		return cId.getLocation();
+	}
+
+	public void printUsage() {
+		System.out.println("\nAvailable commands:");
+		System.out.println("\t listFiles - prints the available files for downloading");
+		System.out.println("\t download [file_name] - downloads the requested file");
+		System.out.println("\t exit - closes the session\n");
+
+	}
+	
+
+	public void run() throws RemoteException {
+		printUsage();
+
+		LocalServerInterface localServer;
+
+		Scanner reader = new Scanner(System.in);
+
+		String[] userInput = reader.nextLine().split(" ");
+		String command = userInput[0];
+		localServer = centralServer.getLocalServer(cId.getLocation());
+		
+		while (!command.equals(EXIT)) {
+			
+			
+			switch (command) {
+			case LIST_FILES:
+					printFiles();
+				break;
+
+			case DOWNLOAD:
+					filesAvailableForDownload = Arrays.asList(localServer.listFiles());
+					
+				//new FileInputStream("test").rad
+					//file to be downloaded
+					String fileToDownload = userInput[1];
+					
+					if (!filesAvailableForDownload.contains(fileToDownload));{
+						System.out.println("File << " + fileToDownload + ">> is not on the server!");
+					}
+					downloadFile("Storage_Folder", "downloadedFile");
+					
+				break;
+
+			default:
+				printUsage();
+				System.err.println("Unrecognized command! Please retry!");
+			}
+
+			userInput = reader.nextLine().split(" ");
+			command = userInput[0];
+		}
+		
+		//process exit command
+		shutdown();	
+
+		reader.close();
 	}
 
 }
