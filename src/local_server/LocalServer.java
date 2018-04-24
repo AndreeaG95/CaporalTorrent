@@ -13,25 +13,28 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import common.FindLocationTask;
+import common.Location;
+import common.LocationDetectedListener;
 import rmiIO.RMIInputStream;
 import rmiIO.RMIInputStreamImpl;
 import rmiIO.RMIOutputStream;
 import rmiIO.RMIOutputStreamImpl;
-import common.Constants;
-import common.FindLocationTask;
-import common.Location;
-import common.LocationDetectedListener;
 
 public class LocalServer extends UnicastRemoteObject implements LocalServerInterface, LocationDetectedListener {
 	private String lsName;
 	private Location location;
+	
+	//the folder in which the files available for download are stored
+	private String storage_folder="";
 
 	private static final long serialVersionUID = 1L;
 
 
-	public LocalServer(String lsName) throws RemoteException {
+	public LocalServer(String lsName, String storage_folder) throws RemoteException {
 		System.out.println("\nInitializing <<" + lsName + ">> ...");
 		this.lsName = lsName;
+		this.storage_folder = storage_folder;
 		setServerLocation();
 	}
 
@@ -43,7 +46,7 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	 * @param hardcodedLocation
 	 * @throws RemoteException
 	 */
-	public LocalServer(String lsName, Location hardcodedLocation) throws RemoteException {
+	public LocalServer(String lsName, Location hardcodedLocation, String storage_folder) throws RemoteException {
 		System.out.println("\nInitializing <<" + lsName + ">> ...");
 		this.lsName = lsName;
 		this.location = hardcodedLocation;
@@ -61,10 +64,10 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 		try {
 			location = future.get();
 		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
+			System.err.println("Couldn't get the location for server " + lsName);
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for server " + Constants.CS_NAME);
+			System.err.println("Couldn't get the location for server " + lsName);
 			e.printStackTrace();
 		}
 
@@ -72,10 +75,10 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	}
 
 
-	public String[] listFiles(String serverpath) throws RemoteException {
+	public String[] listFiles() throws RemoteException {
 		System.out.println("Listing files...");
 		
-		File serverpathdir = new File(serverpath);
+		File serverpathdir = new File(storage_folder);
 		return serverpathdir.list();
 
 	}

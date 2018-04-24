@@ -15,10 +15,12 @@ public interface LocalServerInterface extends Remote{
 	
 	public InputStream getInputStream(File f) throws IOException;
 	 
-	public String[] listFiles(String serverpath) throws RemoteException;
+	public String[] listFiles() throws RemoteException;
 	
-	String getLocalServerName() throws RemoteException;
+	public String getLocalServerName() throws RemoteException;
 	
-	Location getLS_Location() throws RemoteException;
+	public Location getLS_Location() throws RemoteException;
+	
+	public String getStoragePath() throws RemoteException;
 	
 }
