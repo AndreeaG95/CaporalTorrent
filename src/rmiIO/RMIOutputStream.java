@@ -5,6 +5,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 public class RMIOutputStream extends OutputStream implements Serializable{
+	/**
+	 * Used for serialization.
+	 */
+	private static final long serialVersionUID = 1L;
 	private RMIOutputStreamInterf out;
     
     public RMIOutputStream(RMIOutputStreamImpl out) {

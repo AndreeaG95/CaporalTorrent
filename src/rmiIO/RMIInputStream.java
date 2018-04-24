@@ -6,6 +6,10 @@ import java.io.Serializable;
 
 public class RMIInputStream extends InputStream implements Serializable{
 
+	/**
+	 * Used for serialization.
+	 */
+	private static final long serialVersionUID = 1L;
 	RMIInputStreamInterf in;
     
     public RMIInputStream(RMIInputStreamInterf in) {

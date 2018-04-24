@@ -3,7 +3,10 @@ package local_server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ExecutionException;
@@ -11,6 +14,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import rmiIO.RMIInputStream;
+import rmiIO.RMIInputStreamImpl;
+import rmiIO.RMIOutputStream;
+import rmiIO.RMIOutputStreamImpl;
 import common.Constants;
 import common.FindLocationTask;
 import common.Location;
@@ -117,6 +124,14 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	@Override
 	public void locationDetected() {
 		System.out.println(lsName + " is ready to use!");
+	}
+	
+	public OutputStream getOutputStream(File f) throws IOException {
+	    return new RMIOutputStream(new RMIOutputStreamImpl(new FileOutputStream(f)));
+	}
+
+	public InputStream getInputStream(File f) throws IOException {
+	    return new RMIInputStream(new RMIInputStreamImpl(new FileInputStream(f)));
 	}
 	
 	/*
