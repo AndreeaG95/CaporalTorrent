@@ -18,12 +18,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import local_server.LocalServerInterface;
 import central_server.CentralServerInterface;
+
 import common.Constants;
 import common.FindLocationTask;
 import common.Location;
 import common.LocationDetectedListener;
-import local_server.LocalServerInterface;
 
 public class Client implements LocationDetectedListener {
 	private CentralServerInterface centralServer;
@@ -45,8 +46,8 @@ public class Client implements LocationDetectedListener {
 		setClientLocation();
 
 		try {
-			centralServer = (CentralServerInterface) Naming
-					.lookup("rmi://" + Constants.CS_IP + "/" + Constants.CS_NAME);
+			centralServer = (CentralServerInterface) Naming.lookup("rmi://"
+					+ Constants.CS_IP + "/" + Constants.CS_NAME);
 
 		} catch (MalformedURLException | RemoteException | NotBoundException e) {
 			e.printStackTrace();
@@ -65,10 +66,12 @@ public class Client implements LocationDetectedListener {
 			cId.setLocation(future.get());
 
 		} catch (InterruptedException e) {
-			System.err.println("Couldn't get the location for client " + cId.getClientName());
+			System.err.println("Couldn't get the location for client "
+					+ cId.getClientName());
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			System.err.println("Couldn't get the location for client " + cId.getClientName());
+			System.err.println("Couldn't get the location for client "
+					+ cId.getClientName());
 			e.printStackTrace();
 		}
 
@@ -79,7 +82,8 @@ public class Client implements LocationDetectedListener {
 	// We ask each time for a new local server in case the one we used before
 	// crashed or is busy.
 
-	public static void copy(InputStream in, OutputStream out) throws IOException {
+	public static void copy(InputStream in, OutputStream out)
+			throws IOException {
 
 		System.out.println("using byte[] read/write");
 		byte[] b = new byte[BUF_SIZE];
@@ -93,53 +97,60 @@ public class Client implements LocationDetectedListener {
 
 	public void downloadFile(File src, File dest) throws IOException {
 		if (cId.getLocation() == null) {
-			System.out.println("Client location unavailibe. Please try again later.");
+			System.out
+					.println("Client location unavailibe. Please try again later.");
 			System.exit(0);
 		}
 
-		LocalServerInterface localServer = centralServer.getLocalServer(cId.getLocation());
+		LocalServerInterface localServer = centralServer.getLocalServer(cId
+				.getLocation());
 
 		if (localServer == null) {
 			System.out.println("Server unavailibe. Please try again later.");
 			System.exit(0);
 		}
 
-		System.out.println("\nDownloading from: " + localServer.getLocalServerName());
+		System.out.println("\nDownloading from: "
+				+ localServer.getLocalServerName());
 		copy(localServer.getInputStream(src), new FileOutputStream(dest));
 
-		System.out.println("\n Finished downloading from: " + localServer.getLocalServerName());
+		System.out.println("\n Finished downloading from: "
+				+ localServer.getLocalServerName());
 	}
 
 	public void uploadFile(File src, File dest) throws IOException {
 		if (cId.getLocation() == null) {
-			System.out.println("Client location unavailibe. Please try again later.");
+			System.out
+					.println("Client location unavailibe. Please try again later.");
 			System.exit(0);
 		}
 
-		LocalServerInterface localServer = (LocalServerInterface) centralServer.getLocalServer(cId.getLocation());
+		LocalServerInterface localServer = (LocalServerInterface) centralServer
+				.getLocalServer(cId.getLocation());
 		if (localServer == null) {
 			System.out.println("Server unavailibe. Please try again later.");
 
-		
-		 if(src.exists()){
-			 File file2 = new File(dest+"_copy");
-			 dest.renameTo(file2);
-		     
-			 System.out.println("file is already there");
-		  }else{
-		       System.out.println("Not find file ");
-		  }
-		
-		centralServer.updateFiles(LSserver, dest);
+			if (src.exists()) {
+				File file2 = new File(dest + "_copy");
+				dest.renameTo(file2);
+
+				System.out.println("file is already there");
+			} else {
+				System.out.println("Not find file ");
+			}
+
+			// centralServer.updateFiles(localServer, dest);
 		}
 
-		System.out.println("\nUploading to: " + localServer.getLocalServerName());
+		System.out.println("\nUploading to: "
+				+ localServer.getLocalServerName());
 		copy(new FileInputStream(src), localServer.getOutputStream(dest));
 	}
 
 	public void printFiles() {
 		try {
-			LocalServerInterface localServer = centralServer.getLocalServer(cId.getLocation());
+			LocalServerInterface localServer = centralServer.getLocalServer(cId
+					.getLocation());
 
 			String[] filelist;
 			filelist = localServer.listFiles();
@@ -153,16 +164,12 @@ public class Client implements LocationDetectedListener {
 		}
 
 	}
-	
-	public boolean update(){
-		try {
-			centralServer.update();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return true;
-	}
+
+	/*
+	 * public boolean update(){ try { centralServer.update(); } catch
+	 * (RemoteException e) { // TODO Auto-generated catch block
+	 * e.printStackTrace(); } return true; }
+	 */
 
 	public void shutdown() {
 		System.exit(0);
@@ -180,11 +187,46 @@ public class Client implements LocationDetectedListener {
 
 	public void printUsage() {
 		System.out.println("\nAvailable commands:");
-		System.out.println("\t listFiles - prints the available files for downloading");
-		System.out.println("\t download [file_name] - downloads the requested file");
-		System.out.println("\t upload [file_name] - uploads the requested file");
+		System.out
+				.println("\t listFiles - prints the available files for downloading");
+		System.out
+				.println("\t download [file_name] - downloads the requested file");
+		System.out
+				.println("\t upload [file_name] - uploads the requested file");
 		System.out.println("\t exit - closes the session\n");
 
+	}
+
+	private File[] listf(String directoryName, String destination) {
+
+		// .............list file
+		File directory = new File(directoryName);
+
+		// get all the files from a directory
+		File[] fList = directory.listFiles();
+
+		for (File file : fList) {
+			if (file.isDirectory()) {
+				String outFileName = destination + "\\"+ "Out_" + file.getName();
+				File dest = new File(outFileName);
+				dest.mkdir();
+				System.out.println("Directory copied ");
+				listf(file.getAbsolutePath(), outFileName);
+			} else {
+				String outFileName = destination + "\\" + "Out_" + file.getName();
+				File dest = new File(outFileName);
+
+				try {
+					downloadFile(file, dest);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
+		System.out.println(fList);
+		return fList;
 	}
 
 	public void run() throws IOException {
@@ -206,36 +248,45 @@ public class Client implements LocationDetectedListener {
 				break;
 
 			case DOWNLOAD:
-				filesAvailableForDownload = Arrays.asList(localServer.listFiles());
+				filesAvailableForDownload = Arrays.asList(localServer
+						.listFiles());
 
 				// new FileInputStream("test").rad
 				// file to be downloaded
 				String fileToDownloadName = userInput[1];
 
 				if (!filesAvailableForDownload.contains(fileToDownloadName)) {
-					System.out.println("File << " + fileToDownloadName + ">> is not on the server!");
+					System.out.println("File << " + fileToDownloadName
+							+ ">> is not on the server!");
 					break;
 				}
 				String outFileName = "Out_" + fileToDownloadName;
-				String inFileName = localServer.getStoragePath() + fileToDownloadName;
+				String inFileName = localServer.getStoragePath() + "\\"
+						+ fileToDownloadName;
 				File src = new File(inFileName);
-				File dest = new File(outFileName);
-
-				downloadFile(src, dest);
+				if (src.isFile()) {
+					File dest = new File(outFileName);
+					downloadFile(src, dest);
+				} else {
+					File dest = new File(outFileName);
+					dest.mkdir();
+					listf(inFileName, dest.getName());
+				}
 
 				break;
 
 			case UPLOAD:
-					String fileToUploadName = userInput[1];
-					File srcUp = new File(fileToUploadName);
-					
-					if (!srcUp.exists()){
-						System.err.println("File <<" + fileToUploadName + " >> doesn't exit on file system!");
-						break;
-					}
-					
-					File destUp = new File("In_" + fileToUploadName);
-					uploadFile(srcUp, destUp);
+				String fileToUploadName = userInput[1];
+				File srcUp = new File(fileToUploadName);
+
+				if (!srcUp.exists()) {
+					System.err.println("File <<" + fileToUploadName
+							+ " >> doesn't exit on file system!");
+					break;
+				}
+
+				File destUp = new File("In_" + fileToUploadName);
+				uploadFile(srcUp, destUp);
 				break;
 
 			default:
@@ -252,5 +303,4 @@ public class Client implements LocationDetectedListener {
 
 		reader.close();
 	}
-
 }

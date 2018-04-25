@@ -1,12 +1,11 @@
 package central_server;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import common.Location;
 import local_server.LocalServerInterface;
+
+import common.Location;
 
 public interface CentralServerInterface extends Remote {
 	
@@ -24,10 +23,10 @@ public interface CentralServerInterface extends Remote {
 	/*
 	 * Notifies to local server to update their file system.
 	 */
-	void update() throws RemoteException;
+	//void update() throws RemoteException;
 
 	/*
 	 * When uploading a file to the local server we  
 	 */
-	void updateFiles(LocalServerInterface lSserver, File dest);
+	//void updateFiles(LocalServerInterface lSserver, File dest);
 }

@@ -4,6 +4,7 @@ import java.rmi.Naming;
 
 import common.Constants;
 
+
 public class CentralServerStart {
 
 	public static void main(String[] args){

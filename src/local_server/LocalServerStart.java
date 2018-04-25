@@ -3,6 +3,7 @@ package local_server;
 import java.rmi.Naming;
 
 import central_server.CentralServerInterface;
+
 import common.Constants;
 import common.Location;
 
@@ -28,9 +29,6 @@ public class LocalServerStart {
 			CentralServerInterface csi = (CentralServerInterface)Naming.lookup("rmi://" + Constants.CS_IP + "/" + Constants.CS_NAME );
 			csi.registerLocalServer(localServerName);
 			csi.registerLocalServer(localServerName2);
-			
-			System.out.println("Local Server <" + localServerName + "> has started!");
-			System.out.println("Local Server <" + localServerName2 + "> has started!");
 			
 		}catch(Exception e){
 			e.printStackTrace();

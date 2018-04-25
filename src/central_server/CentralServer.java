@@ -1,8 +1,6 @@
 package central_server;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,10 +13,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import client.Client;
+import local_server.LocalServerInterface;
+
 import common.Constants;
 import common.Location;
-import local_server.LocalServerInterface;
 
 public class CentralServer extends UnicastRemoteObject implements CentralServerInterface {
 	/**
@@ -98,9 +96,10 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
         out.close();
     }
 
-	@Override
+	
+	
 	public void updateFiles(LocalServerInterface lSserver, File dest) {
-		ArrayList<File> files = serverFiles.get(lSserver);
+		/*ArrayList<File> files = serverFiles.get(lSserver);
 		files.add(dest);
 		serverFiles.put(lSserver, files);
 		
@@ -115,7 +114,7 @@ public class CentralServer extends UnicastRemoteObject implements CentralServerI
 					e1.printStackTrace();
 				}
 			}
-		}
+		}*/
 		
 	}
 

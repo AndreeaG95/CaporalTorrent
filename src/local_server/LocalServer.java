@@ -13,13 +13,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import common.FindLocationTask;
-import common.Location;
-import common.LocationDetectedListener;
 import rmiIO.RMIInputStream;
 import rmiIO.RMIInputStreamImpl;
 import rmiIO.RMIOutputStream;
 import rmiIO.RMIOutputStreamImpl;
+
+import common.FindLocationTask;
+import common.Location;
+import common.LocationDetectedListener;
 
 public class LocalServer extends UnicastRemoteObject implements LocalServerInterface, LocationDetectedListener {
 	private String lsName;
@@ -34,7 +35,7 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	public LocalServer(String lsName, String storage_folder) throws RemoteException {
 		System.out.println("\nInitializing <<" + lsName + ">> ...");
 		this.lsName = lsName;
-		this.storage_folder = storage_folder;
+		this.storage_folder = "./";
 		setServerLocation();
 	}
 
@@ -107,6 +108,11 @@ public class LocalServer extends UnicastRemoteObject implements LocalServerInter
 	// Used for downloading files.
 	public InputStream getInputStream(File f) throws IOException {
 	    return new RMIInputStream(new RMIInputStreamImpl(new FileInputStream(f)));
+	}
+
+	@Override
+	public String getStoragePath() throws RemoteException {
+		return storage_folder;
 	}
 
 }
