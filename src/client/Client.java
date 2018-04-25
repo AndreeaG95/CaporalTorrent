@@ -196,7 +196,7 @@ public class Client implements LocationDetectedListener {
 					break;
 				}
 				String outFileName = "Out_" + fileToDownloadName;
-				String inFileName = localServer.getStoragePath() + fileToDownloadName;
+				String inFileName = localServer.getStoragePath() + "\\" + fileToDownloadName;
 				File src = new File(inFileName);
 				File dest = new File(outFileName);
 
