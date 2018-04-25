@@ -30,6 +30,9 @@ public class Client implements LocationDetectedListener {
 	private ClientId cId;
 	private List<String> filesAvailableForDownload;
 	private final static int BUF_SIZE = 1024 * 64;
+	// when more than UPTIME seconds have passed, client recomputes location and
+	// asks for (new) LS
+	private long UPTIME = 10;
 
 	// commands
 	private static final String EXIT = "exit";
@@ -75,13 +78,8 @@ public class Client implements LocationDetectedListener {
 		es.shutdown();
 	}
 
-	// TODO: Error checks.
-	// We ask each time for a new local server in case the one we used before
-	// crashed or is busy.
-
 	public static void copy(InputStream in, OutputStream out) throws IOException {
 
-		System.out.println("using byte[] read/write");
 		byte[] b = new byte[BUF_SIZE];
 		int len;
 		while ((len = in.read(b)) >= 0) {
@@ -107,7 +105,7 @@ public class Client implements LocationDetectedListener {
 		System.out.println("\nDownloading from: " + localServer.getLocalServerName());
 		copy(localServer.getInputStream(src), new FileOutputStream(dest));
 
-		System.out.println("\n Finished downloading from: " + localServer.getLocalServerName());
+		System.out.println("Finished downloading from: " + localServer.getLocalServerName());
 	}
 
 	public void uploadFile(File src, File dest) throws IOException {
@@ -167,11 +165,13 @@ public class Client implements LocationDetectedListener {
 	}
 
 	public void run() throws IOException {
-		printUsage();
-
+		long startTime = System.currentTimeMillis() / 1000;
+		long endTime;
+		long elapsedTime;
 		LocalServerInterface localServer;
-
 		Scanner reader = new Scanner(System.in);
+
+		printUsage();
 
 		String[] userInput = reader.nextLine().split(" ");
 		String command = userInput[0];
@@ -187,7 +187,6 @@ public class Client implements LocationDetectedListener {
 			case DOWNLOAD:
 				filesAvailableForDownload = Arrays.asList(localServer.listFiles());
 
-				// new FileInputStream("test").rad
 				// file to be downloaded
 				String fileToDownloadName = userInput[1];
 
@@ -205,16 +204,16 @@ public class Client implements LocationDetectedListener {
 				break;
 
 			case UPLOAD:
-					String fileToUploadName = userInput[1];
-					File srcUp = new File(fileToUploadName);
-					
-					if (!srcUp.exists()){
-						System.err.println("File <<" + fileToUploadName + " >> doesn't exit on file system!");
-						break;
-					}
-					
-					File destUp = new File("In_" + fileToUploadName);
-					uploadFile(srcUp, destUp);
+				String fileToUploadName = userInput[1];
+				File srcUp = new File(fileToUploadName);
+
+				if (!srcUp.exists()) {
+					System.err.println("File <<" + fileToUploadName + " >> doesn't exit on file system!");
+					break;
+				}
+
+				File destUp = new File("In_" + fileToUploadName);
+				uploadFile(srcUp, destUp);
 				break;
 
 			default:
@@ -222,6 +221,15 @@ public class Client implements LocationDetectedListener {
 				System.err.println("Unrecognized command! Please retry!");
 			}
 
+
+			endTime = System.currentTimeMillis() / 1000;
+			elapsedTime = endTime - startTime;
+			
+			if (elapsedTime > UPTIME){
+				reconnect();
+				reader.close();
+			}
+			
 			userInput = reader.nextLine().split(" ");
 			command = userInput[0];
 		}
@@ -230,6 +238,12 @@ public class Client implements LocationDetectedListener {
 		shutdown();
 
 		reader.close();
+	}
+
+	private void reconnect() throws IOException {
+		System.out.println("\nInitializing client : <<" + cId.getClientName() + " >>");
+		setClientLocation();
+		run();
 	}
 
 }
